@@ -1,4 +1,4 @@
-﻿// Jonathan Hermin & Emil Westling
+﻿// Jonathan Hermin, Emil Westling, & Jesper Carlsson
 // 2023-10-25
 // Microsoft Visual Studio Community 2022 (64 bit) - 17.7.0
 // github: https://github.com/UU-projekt/nim2
@@ -117,7 +117,7 @@ namespace gruppptojekt
         /// <returns></returns>
         static int MainMenu()
         {
-            ColourLog("Jonathan Hermin & Emil Westling presenterar...", ConsoleColor.DarkGray);
+            ColourLog("Jonathan Hermin, Emil Westling, & Jesper Carlsson presenterar...", ConsoleColor.DarkGray);
             ColourLog(logo, ConsoleColor.DarkCyan);
 
             ColourLog("#1: Spela!", ConsoleColor.Green);
@@ -181,7 +181,7 @@ namespace gruppptojekt
         static void spelregler(string firstPlayer, string secondPlayer)
         {
             Console.Clear();
-            ColourLog("Jonathan Hermin & Emil Westling presenterar...", ConsoleColor.DarkGray);
+            ColourLog("Jonathan Hermin, Emil Westling, & Jesper Carlsson presenterar...", ConsoleColor.DarkGray);
             ColourLog(logo, ConsoleColor.DarkCyan);
             Console.WriteLine($"{firstPlayer} möter {secondPlayer}\n");
             Console.WriteLine("Spelregler:");

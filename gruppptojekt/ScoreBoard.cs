@@ -1,4 +1,4 @@
-﻿// Jonathan Hermin & Emil Westling
+﻿// Jonathan Hermin, Emil Westling, & Jesper Carlsson
 // 2023-10-25
 // Microsoft Visual Studio Community 2022 (64 bit) - 17.7.0
 // github: https://github.com/UU-projekt/nim2
