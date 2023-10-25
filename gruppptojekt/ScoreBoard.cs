@@ -24,7 +24,7 @@ namespace gruppptojekt
         /// <param name="move"></param>
         public void recordMove(string player, Program.SelectionStruct move)
         {
-            RoundSteps.Add(new RoundStep {  player = player, move = move });
+            RoundSteps.Add(new RoundStep { player = player, move = move });
         }
 
         /// <summary>
@@ -46,9 +46,28 @@ namespace gruppptojekt
                     outputFile.WriteLine($"{step.player},{step.move.stack},{step.move.amount}");
                 }
 
-                outputFile.WriteLine($"ENDMATCH, {winner.Replace(',', ' ')}, {DateTime.Now}");
+                outputFile.WriteLine($"ENDMATCH,{winner.Replace(',', ' ')},{DateTime.Now}");
             }
         }
+
+        /// <summary>
+        /// Skickar tillbaka en Dict som är keyad på spelarnamn och inkluderar spelarens antal vinster
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<string, int> GetPlayerScores()
+        {
+            Dictionary<string, int> players = new Dictionary<string, int>();
+
+            foreach (var match in GetMatches())
+            {
+                if (!players.ContainsKey(match.winner)) players.Add(match.winner, 0);
+                players[match.winner]++;
+            }
+
+            return players;
+        }
+
+        List<Match>? MatchCache;
 
         /// <summary>
         /// Laddar alla tidigare matcher
@@ -56,8 +75,12 @@ namespace gruppptojekt
         /// <returns></returns>
         public List<Match> GetMatches()
         {
+            if (MatchCache != null) return MatchCache;
             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             List<Match> matches = new List<Match>();
+
+            // om filen inte finns skickar vi tillbaka en tom lista
+            if(!File.Exists(Path.Combine(docPath, "NimScore.csv"))) return matches;
 
             using (StreamReader file = new StreamReader(Path.Combine(docPath, "NimScore.csv")))
             {
@@ -67,6 +90,15 @@ namespace gruppptojekt
                 {
                     string[] entries = line.Split(',');
 
+                    if (entries.Length != 3)
+                    {
+                        Console.WriteLine("!!! KUNDE INTE TYDA NimScore.csv !!!\nFilen är felformaterad. Det går inte att garantera att repriserna kan spelas upp felfritt\n");
+                        break;
+                    };
+
+                    // Eftersom vår kod bara sparar giltiga drag i "RoundSteps" kan vi strunta i att 
+                    // validera den input vi får från NimScore.csv.
+                    // Detta kan leda till att vår kod crashar om användaren själv går in och meckar i filen men i så fall är det användarens fel
                     if (entries[0] == "ENDMATCH")
                     {
                         matches.Add(new Match(MatchSteps, entries[1], DateTime.Parse(entries[2])));
@@ -80,6 +112,8 @@ namespace gruppptojekt
                     }
                 }
             }
+
+            MatchCache = matches;
 
             return matches;
         }

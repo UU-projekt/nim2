@@ -56,6 +56,13 @@ namespace gruppptojekt
 
                 var move = step.Value.move;
                 string player = step.Value.player;
+
+                if(move.stack > pinnar.Length || 1 > move.stack)
+                {
+                    Console.WriteLine($"!!! NÅGOT GICK FEL !!!\nFörsökte spela med ogiltig hög");
+                    break;
+                }
+
                 pinnar[move.stack - 1] -= move.amount;
 
                 for (int i = 0; i < pinnar.Length; i++)
@@ -64,13 +71,16 @@ namespace gruppptojekt
                 }
 
                 Console.SetCursorPosition(6, move.stack - 1);
-                Console.WriteLine($"<- {player} tar {move.amount} stickor");
+
+                bool plural = move.amount > 1;
+
+                Console.WriteLine($"<- {player} tar {move.amount} stick{ (plural ? "or" : "a") }");
 
                 Thread.Sleep(1000);
             }
+            Console.SetCursorPosition(0, 3);
             Console.WriteLine($"{winner} vann denna match! (tryck på valfri tangent för att avbryta)");
             Console.ReadKey();
-            Console.Clear();
         }
     }
 }

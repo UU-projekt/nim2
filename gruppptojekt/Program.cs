@@ -3,10 +3,24 @@
 // Microsoft Visual Studio Community 2022 (64 bit) - 17.7.0
 // github: https://github.com/UU-projekt/nim2
 
+using System.Runtime.CompilerServices;
+
 namespace gruppptojekt
 {
     internal class Program
     {
+
+        static string logo = @"          
+ /$$   /$$ /$$$$$$ /$$      /$$
+| $$$ | $$|_  $$_/| $$$    /$$$
+| $$$$| $$  | $$  | $$$$  /$$$$
+| $$ $$ $$  | $$  | $$ $$/$$ $$
+| $$  $$$$  | $$  | $$  $$$| $$
+| $$\  $$$  | $$  | $$\  $ | $$
+| $$ \  $$ /$$$$$$| $$ \/  | $$
+|__/  \__/|______/|__/     |__/
+";
+
         /// <summary>
         /// Skriver ut en textrad i färg
         /// </summary>
@@ -51,14 +65,45 @@ namespace gruppptojekt
 
         static void Main(string[] args)
         {
-            ShowScoreBoard();
+            spelregler("spelare 1", "spelare 2");
 
+            bool run = true;
+            while(run)
+            {
+                Console.Clear();
+                int selection = MainMenu();
+
+                switch (selection)
+                {
+                    case 1:
+                        StartGame();
+                        break;
+                    case 2:
+                        ShowScoreBoard();
+                        break;
+                    case 3:
+                        Console.WriteLine("Tack för att du spelade nim! :D");
+                        run = false;
+                        break;
+                    default:
+                        Main(args);
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Denna funktion startar själva spelet. Spelare(n) anger namn och om AI skall vara med
+        /// </summary>
+        static void StartGame()
+        {
+            Console.Clear();
             string p1 = Ask("Namn spelare 1").Trim();
             string p2 = "Weird AI";
             bool aiEnabled = true;
 
 
-            if(Ask("Vill du spela mot AI (y/n)", new string[] { "y", "n" }) == "n")
+            if (Ask("Vill du spela mot AI (y/n)", new string[] { "y", "n" }) == "n")
             {
                 p2 = Ask("Namn spelare 2").Trim();
                 aiEnabled = false;
@@ -66,42 +111,79 @@ namespace gruppptojekt
 
             spelregler(p1, p2);
 
-            spel(p1, p2, aiEnabled);
+            spel(p2, p1, aiEnabled);
         }
 
+        /// <summary>
+        /// Denna funktion skriver ut huvudmenyn till konsolen och skickar tillbaka användarens val
+        /// </summary>
+        /// <returns></returns>
+        static int MainMenu()
+        {
+            ColourLog("Jonathan Hermin & Emil Westling presenterar...", ConsoleColor.DarkGray);
+            ColourLog(logo, ConsoleColor.DarkCyan);
+
+            ColourLog("#1: Spela!", ConsoleColor.Green);
+            ColourLog("#2: Visa statestik!", ConsoleColor.Yellow);
+            ColourLog("#3: Avsluta spelet :(\n", ConsoleColor.Red);
+
+            Console.Write("val: ");
+            int.TryParse(Console.ReadLine(), out int nr);
+
+            return nr;
+        }
+
+        /// <summary>
+        /// Denna funktion skriver ut scoreboardet till konsolen
+        /// </summary>
         static void ShowScoreBoard()
         {
+            Console.Clear();
             ScoreBoard score = new ScoreBoard();
             var matches = score.GetMatches();
+            var playerScores = score.GetPlayerScores();
 
-            for(int i = 0; i <  matches.Count; i++)
+            ColourLog("Vinststatestik", ConsoleColor.Green);
+            foreach(var player in playerScores)
             {
-                Match iMatch = matches[i];
-                Console.WriteLine($"({i}) vinnare: {iMatch.winner} | {iMatch.date}");
+                Console.WriteLine($"{player.Key}: {player.Value}");
             }
 
-            string matchSelection = Ask("Välj match att visa");
+            ColourLog("\nMatch-repriser:", ConsoleColor.Green);
+            for (int i = 0; i <  matches.Count; i++)
+            {
+                Match iMatch = matches[i];
+
+                // Gör varranan rad grå för att göra det lättare att tyda listan om den är lång
+                if (i % 2 == 0) Console.ForegroundColor = ConsoleColor.DarkGray;
+
+                Console.Write($"({i}) vinnare: {iMatch.winner}");
+                Console.SetCursorPosition(Console.BufferWidth - iMatch.date.ToString().Length, Console.CursorTop);
+                Console.WriteLine(iMatch.date);
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+
+            string matchSelection = Ask("Välj match att visa (x för att avsluta)");
             bool couldParse = int.TryParse(matchSelection, out int match);
 
-            if (match < 0 || match > matches.Count || !couldParse) return;
+            if (match < 0 || match > matches.Count || !couldParse)
+            {
+                Console.Clear();
+                return;
+            }
 
             Match SelectedMatch = matches[match];
             SelectedMatch.ShowReplay();
         }
 
+        /// <summary>
+        /// Denna funktion skriver ut spelets regler och vilken spelare som börjar
+        /// </summary>
+        /// <param name="firstPlayer"></param>
+        /// <param name="secondPlayer"></param>
         static void spelregler(string firstPlayer, string secondPlayer)
         {
             Console.Clear();
-            string logo = @"          
- /$$   /$$ /$$$$$$ /$$      /$$
-| $$$ | $$|_  $$_/| $$$    /$$$
-| $$$$| $$  | $$  | $$$$  /$$$$
-| $$ $$ $$  | $$  | $$ $$/$$ $$
-| $$  $$$$  | $$  | $$  $$$| $$
-| $$\  $$$  | $$  | $$\  $ | $$
-| $$ \  $$ /$$$$$$| $$ \/  | $$
-|__/  \__/|______/|__/     |__/
-";
             ColourLog("Jonathan Hermin & Emil Westling presenterar...", ConsoleColor.DarkGray);
             ColourLog(logo, ConsoleColor.DarkCyan);
             Console.WriteLine($"{firstPlayer} möter {secondPlayer}\n");
@@ -111,6 +193,10 @@ namespace gruppptojekt
             Console.ReadKey();
         }
 
+        /// <summary>
+        /// Visar den skärm som dyker upp när en spelare vinner
+        /// </summary>
+        /// <param name="winningPlayer">den vinnande spelaren</param>
         static void winScreen(string winningPlayer)
         {
             Console.Clear();
@@ -121,9 +207,15 @@ namespace gruppptojekt
  \@*@*@/
  {_____}";
             ColourLog(crown, ConsoleColor.Yellow);
-            Console.WriteLine($"{winningPlayer} vann!");
+            Console.WriteLine($"{winningPlayer} vann!\nTack för att ni spelade!");
+            Thread.Sleep(2000);
         }
 
+        /// <summary>
+        /// Denna funktion kollar om det är slut på pinnar vilket indikerar att någon vann
+        /// </summary>
+        /// <param name="stacks"></param>
+        /// <returns></returns>
         static bool GameWon(int[] stacks)
         {
             bool containsNonZeroValue(int[] arr)
@@ -143,6 +235,13 @@ namespace gruppptojekt
             public int stack;
             public int amount;
         }
+
+        /// <summary>
+        /// Denna funktion tar spelarens input (om spelaren är människa)
+        /// </summary>
+        /// <param name="playerName"></param>
+        /// <param name="PlayerSelection"></param>
+        /// <returns></returns>
         static bool GetPlayerInput(string playerName, out SelectionStruct PlayerSelection)
         {
             string s = Ask(playerName);
@@ -158,6 +257,10 @@ namespace gruppptojekt
             }
         }
 
+        /// <summary>
+        /// Denna funktion skriver ut en hög i konsolen
+        /// </summary>
+        /// <param name="stack">hur många pinnar det finns i denna hög</param>
         public static void DrawStack(int stack)
         {
             switch (stack)
@@ -189,6 +292,31 @@ namespace gruppptojekt
             Console.WriteLine();
         }
 
+        /// <summary>
+        /// Generarar ett random drag åt Weird AI
+        /// </summary>
+        /// <param name="stacks"></param>
+        /// <returns></returns>
+        static SelectionStruct GetAiMove(int[] stacks)
+        {
+            Random random = new Random();
+
+            int stack = random.Next(1, 4);
+            if (stacks[stack - 1] != 0)
+            {
+                int amount = random.Next(1, stacks[stack - 1]);
+
+                return new SelectionStruct { stack = stack, amount = amount };
+            }
+            else return GetAiMove(stacks);
+        }
+
+        /// <summary>
+        /// Funktionen där det roliga händer! Detta är själva spelet
+        /// </summary>
+        /// <param name="p1">spelare 1</param>
+        /// <param name="p2">spelare 2</param>
+        /// <param name="ai">om en AI är med</param>
         static void spel(string p1, string p2, bool ai)
         {
             int[] pinnar = { 5, 5, 5 };
@@ -203,7 +331,22 @@ namespace gruppptojekt
 
                 for (int i = 0; i < pinnar.Length; i++) DrawStack(pinnar[i]);
 
-                bool couldParse = GetPlayerInput(players[playerTurn ? 1 : 0], out SelectionStruct selection);
+                bool couldParse = true; //GetPlayerInput(players[playerTurn ? 1 : 0], out SelectionStruct selection)
+                SelectionStruct selection;
+
+                if (!ai || playerTurn)
+                {
+                    couldParse = GetPlayerInput(players[playerTurn ? 1 : 0], out SelectionStruct sel);
+                    selection = sel;
+                } else
+                {
+                    Console.Write($"{players[playerTurn ? 1 : 0]}: ");
+                    Thread.Sleep(700);
+                    selection = GetAiMove(pinnar);
+                    Console.Write($"{selection.stack} {selection.amount}");
+                    Thread.Sleep(770);
+                }
+
                 if (!couldParse || selection.stack > pinnar.Length || selection.stack < 1 || selection.amount > pinnar[selection.stack - 1] || selection.amount < 1) continue;
                 
                 score.recordMove(players[playerTurn ? 1 : 0], selection);
