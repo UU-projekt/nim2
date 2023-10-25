@@ -297,6 +297,25 @@ namespace gruppptojekt
         static SelectionStruct GetAiMove(int[] stacks)
         {
             Random random = new Random();
+            bool onlyOneStackLeft = false;
+            int lonelyStack = -1;
+
+            for(int i = 0; i < stacks.Length; i++)
+            {
+                if (stacks[i] != 0 && !onlyOneStackLeft) {
+                    onlyOneStackLeft = true;
+                    lonelyStack = i;
+                } else if (stacks[i] != 0 && onlyOneStackLeft)
+                {
+                    onlyOneStackLeft = false;
+                    break;
+                }
+            
+            }
+
+            if(onlyOneStackLeft) {
+                return new SelectionStruct { stack = lonelyStack + 1, amount = stacks[lonelyStack] };
+            }
 
             int stack = random.Next(1, 4);
             if (stacks[stack - 1] != 0)

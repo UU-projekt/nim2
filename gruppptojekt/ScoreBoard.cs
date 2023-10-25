@@ -43,7 +43,7 @@ namespace gruppptojekt
                 for (int i = 0; i < RoundSteps.Count; i++)
                 {
                     RoundStep step = RoundSteps[i];
-                    outputFile.WriteLine($"{step.player},{step.move.stack},{step.move.amount}");
+                    outputFile.WriteLine($"{step.player.Replace(',', ' ')},{step.move.stack},{step.move.amount}");
                 }
 
                 outputFile.WriteLine($"ENDMATCH,{winner.Replace(',', ' ')},{DateTime.Now}");
@@ -101,7 +101,8 @@ namespace gruppptojekt
                     // Detta kan leda till att vår kod crashar om användaren själv går in och meckar i filen men i så fall är det användarens fel
                     if (entries[0] == "ENDMATCH")
                     {
-                        matches.Add(new Match(MatchSteps, entries[1], DateTime.Parse(entries[2])));
+                        DateTime.TryParse(entries[2], out DateTime date);
+                        matches.Add(new Match(MatchSteps, entries[1], date));
                         MatchSteps.Clear();
                     } else
                     {
