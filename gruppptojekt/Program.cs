@@ -85,9 +85,6 @@ namespace gruppptojekt
                         Console.WriteLine("Tack för att du spelade nim! :D");
                         run = false;
                         break;
-                    default:
-                        Main(args);
-                        break;
                 }
             }
         }
@@ -166,7 +163,7 @@ namespace gruppptojekt
             string matchSelection = Ask("Välj match att visa (x för att avsluta)");
             bool couldParse = int.TryParse(matchSelection, out int match);
 
-            if (match < 0 || match > matches.Count || !couldParse)
+            if (match < 0 || match >= matches.Count || !couldParse)
             {
                 Console.Clear();
                 return;
